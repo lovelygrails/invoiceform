@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LovelyGrails – Formularz Faktury / Invoice Form</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #222222;
+    --border-focus: #ffffff;
+    --text: #e8e8e8;
+    --text-muted: #555555;
+    --text-label: #888888;
+    --accent: #ffffff;
+    --success: #22c55e;
+    --error: #ef4444;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px 80px;
+  }
+
+  /* Header */
+  header {
+    width: 100%;
+    max-width: 520px;
+    margin-bottom: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .brand-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .lang-toggle {
+    display: flex;
+    gap: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px;
+  }
+
+  .lang-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s;
+  }
+
+  .lang-btn.active {
+    background: var(--accent);
+    color: #000;
+  }
+
+  /* Title */
+  .page-title {
+    width: 100%;
+    max-width: 520px;
+    margin-bottom: 40px;
+  }
+
+  .page-title h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+
+  .page-title p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* Form */
+  form {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-label);
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="date"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 13px 14px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  input[type="date"]:focus {
+    border-color: var(--border-focus);
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) opacity(0.3);
+  }
+
+  /* File upload */
+  .file-area {
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+
+  .file-area:hover, .file-area.drag {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .file-area input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .file-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+    opacity: 0.4;
+  }
+
+  .file-text {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .file-text strong {
+    color: var(--text-label);
+  }
+
+  .file-name {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--success);
+    display: none;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+
+  /* Submit */
+  .submit-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    padding: 15px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .submit-btn:hover { opacity: 0.88; }
+  .submit-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Status */
+  .status {
+    display: none;
+    padding: 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .status.success {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: var(--success);
+  }
+
+  .status.error {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--error);
+  }
+
+  .required { color: var(--text-muted); }
+
+  /* Progress */
+  .progress-wrap {
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+    display: none;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 60px;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 560px) {
+    body { padding: 32px 16px 60px; }
+    .page-title h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-name">LovelyGrails</div>
+    <div class="brand-sub" id="brandSub">Formularz faktury zakupu</div>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('pl')" id="btnPL">PL</button>
+    <button class="lang-btn" onclick="setLang('en')" id="btnEN">EN</button>
+  </div>
+</header>
+
+<div class="page-title">
+  <h1 id="pageTitle">Prześlij fakturę zakupu</h1>
+  <p id="pageDesc">Wypełnij formularz i wgraj plik faktury. Dane zostaną automatycznie zapisane w naszym systemie.</p>
+</div>
+
+<form id="invoiceForm" onsubmit="handleSubmit(event)">
+
+  <div class="field">
+    <label id="labelOrderId">Numer zamówienia BL <span class="required">*</span></label>
+    <input type="text" id="orderId" placeholder="np. 334532400" required>
+  </div>
+
+  <div class="field">
+    <label id="labelInvoiceNr">Numer faktury <span class="required">*</span></label>
+    <input type="text" id="invoiceNr" placeholder="np. FV/2026/06/123" required>
+  </div>
+
+  <div class="field">
+    <label id="labelCompany">Nazwa firmy / sprzedawcy <span class="required">*</span></label>
+    <input type="text" id="company" placeholder="np. Secured Stuff Marcin Kenneman" required>
+  </div>
+
+  <div class="field">
+    <label id="labelDate">Data faktury <span class="required">*</span></label>
+    <input type="date" id="invoiceDate" required>
+  </div>
+
+  <div class="field">
+    <label id="labelAmount">Kwota zakupu (PLN) <span class="required">*</span></label>
+    <input type="number" id="amount" placeholder="np. 995.00" step="0.01" min="0" required>
+    <div id="eurNote" style="display:none;font-size:11px;color:#888;margin-top:4px;line-height:1.5;"></div>
+    <div id="eurPreview" style="display:none;font-size:12px;color:#22c55e;margin-top:6px;"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="field">
+    <label id="labelFile">Plik faktury PDF <span class="required">*</span></label>
+    <div class="file-area" id="fileArea">
+      <input type="file" id="fileInput" accept=".pdf,image/*" onchange="handleFileChange(this)">
+      <div class="file-icon">📄</div>
+      <div class="file-text" id="fileText"><strong id="fileStrong">Kliknij lub przeciągnij</strong> plik PDF faktury</div>
+      <div class="file-name" id="fileName"></div>
+    </div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div class="status" id="statusBox"></div>
+
+  <button type="submit" class="submit-btn" id="submitBtn">
+    <span id="submitText">Wyślij fakturę</span>
+  </button>
+
+</form>
+
+<footer>LovelyGrails &copy; 2026</footer>
+
+<script>
+// ── TŁUMACZENIA ──────────────────────────────────────────────
+const T = {
+  pl: {
+    brandSub:    'Formularz faktury zakupu',
+    pageTitle:   'Prześlij fakturę zakupu',
+    pageDesc:    'Wypełnij formularz i wgraj plik faktury. Dane zostaną automatycznie zapisane w naszym systemie.',
+    labelOrderId:'Numer zamówienia BL (podany przeze mnie)',
+    labelInvoiceNr:'Numer faktury',
+    labelDate:   'Data sprzedaży przedmiotu',
+    labelAmount: 'Kwota zakupu (PLN)',
+    labelFile:   'Plik faktury PDF',
+    fileStrong:  'Kliknij lub przeciągnij',
+    fileText:    ' plik PDF faktury',
+    submitText:  'Wyślij fakturę',
+    sending:     'Wysyłanie...',
+    successTitle:'Faktura przesłana!',
+    successDesc: 'Dane zostały zapisane. Możesz zamknąć tę stronę.',
+    errorTitle:  'Błąd przesyłania',
+    errorSize:   'Plik jest za duży (max 10MB)',
+    errorFile:   'Wybierz plik faktury',
+    orderIdPh:   'np. 334532400',
+    invoiceNrPh: 'np. FV/2026/06/123',
+    companyPh:   'np. Secured Stuff Marcin Kenneman',
+    labelCompany:'Nazwa firmy / sprzedawcy',
+    amountPh:    'np. 995.00',
+    eurNote:     '',
+  },
+  en: {
+    brandSub:    'Purchase invoice form',
+    pageTitle:   'Submit purchase invoice',
+    pageDesc:    'Fill in the form and upload your invoice file. The data will be automatically saved in our system.',
+    labelOrderId:'BL Order Number (given to you by me)',
+    labelInvoiceNr:'Invoice Number',
+    labelDate:   'Item sale date',
+    labelAmount: 'Purchase Amount (EUR)',
+    labelFile:   'Invoice PDF File',
+    fileStrong:  'Click or drag',
+    fileText:    ' your invoice PDF here',
+    submitText:  'Submit Invoice',
+    sending:     'Sending...',
+    successTitle:'Invoice submitted!',
+    successDesc: 'Your data has been saved. You can close this page.',
+    errorTitle:  'Submission error',
+    errorSize:   'File is too large (max 10MB)',
+    errorFile:   'Please select an invoice file',
+    orderIdPh:   'e.g. 334532400',
+    invoiceNrPh: 'e.g. INV/2026/06/123',
+    companyPh:   'e.g. Secured Stuff Marcin Kenneman',
+    labelCompany:'Company / seller name',
+    amountPh:    'e.g. 190.00',
+    eurNote:     'Amount in EUR — will be automatically converted to PLN using NBP rate from the previous day',
+  }
+};
+
+let lang = 'pl';
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnPL').classList.toggle('active', l === 'pl');
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  const t = T[l];
+  document.getElementById('brandSub').textContent    = t.brandSub;
+  document.getElementById('pageTitle').textContent   = t.pageTitle;
+  document.getElementById('pageDesc').textContent    = t.pageDesc;
+  document.getElementById('labelOrderId').innerHTML  = t.labelOrderId + ' <span class="required">*</span>';
+  document.getElementById('labelInvoiceNr').innerHTML= t.labelInvoiceNr + ' <span class="required">*</span>';
+  document.getElementById('labelDate').innerHTML     = t.labelDate + ' <span class="required">*</span>';
+  document.getElementById('labelAmount').innerHTML   = t.labelAmount + ' <span class="required">*</span>';
+  document.getElementById('labelFile').innerHTML     = t.labelFile + ' <span class="required">*</span>';
+  document.getElementById('fileStrong').textContent  = t.fileStrong;
+  document.getElementById('fileText').innerHTML      = '<strong id="fileStrong">' + t.fileStrong + '</strong>' + t.fileText;
+  document.getElementById('submitText').textContent  = t.submitText;
+  // EUR/PLN switch
+  const isEN = l === 'en';
+  document.getElementById('labelAmount').innerHTML = t.labelAmount + ' <span class="required">*</span>';
+  document.getElementById('amount').placeholder = t.amountPh;
+  const eurNoteEl = document.getElementById('eurNote');
+  if (t.eurNote) {
+    eurNoteEl.textContent = t.eurNote;
+    eurNoteEl.style.display = 'block';
+  } else {
+    eurNoteEl.style.display = 'none';
+  }
+  document.getElementById('eurPreview').style.display = 'none';
+  document.getElementById('eurPreview').textContent = '';
+  // Update amount input on lang change
+  currentLangIsEur = isEN;
+  document.getElementById('labelCompany').innerHTML  = t.labelCompany + ' <span class="required">*</span>';
+  document.getElementById('orderId').placeholder     = t.orderIdPh;
+  document.getElementById('company').placeholder     = t.companyPh;
+  document.getElementById('invoiceNr').placeholder   = t.invoiceNrPh;
+  document.getElementById('amount').placeholder      = t.amountPh;
+}
+
+// ── UPLOAD PLIKU ──────────────────────────────────────────────
+const fileArea = document.getElementById('fileArea');
+fileArea.addEventListener('dragover', e => { e.preventDefault(); fileArea.classList.add('drag'); });
+fileArea.addEventListener('dragleave', () => fileArea.classList.remove('drag'));
+fileArea.addEventListener('drop', e => {
+  e.preventDefault();
+  fileArea.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) setFile(f);
+});
+
+function handleFileChange(input) {
+  if (input.files[0]) setFile(input.files[0]);
+}
+
+let selectedFile = null;
+function setFile(f) {
+  selectedFile = f;
+  const fn = document.getElementById('fileName');
+  fn.textContent = '✓ ' + f.name + ' (' + (f.size / 1024 / 1024).toFixed(2) + ' MB)';
+  fn.style.display = 'block';
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────
+// WKLEJ TU URL SWOJEGO GOOGLE APPS SCRIPT (Web App URL)
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz3ER9Bhv0rC03g6zJIZqka7XFGO9B9U9XUxxorXVMXd7c8tKkUsnB8iEktwmGBP2bwQQ/exec';
+
+let currentLangIsEur = false;
+
+// Przelicz EUR -> PLN po wpisaniu kwoty
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('amount').addEventListener('input', onAmountInput);
+  document.getElementById('invoiceDate').addEventListener('change', onAmountInput);
+});
+
+async function onAmountInput() {
+  if (!currentLangIsEur) return;
+  const amt = parseFloat(document.getElementById('amount').value);
+  const date = document.getElementById('invoiceDate').value;
+  if (!amt || !date) return;
+
+  const preview = document.getElementById('eurPreview');
+  preview.textContent = 'Pobieranie kursu NBP...';
+  preview.style.display = 'block';
+
+  try {
+    const rate = await pobierzKursNBP(date);
+    if (rate) {
+      const pln = Math.round(amt * rate);
+      preview.textContent = amt + ' EUR × ' + rate.toFixed(4) + ' = ' + pln + ' PLN (kurs NBP z dnia poprzedniego)';
+    } else {
+      preview.textContent = 'Nie udało się pobrać kursu NBP';
+    }
+  } catch(e) {
+    preview.textContent = 'Błąd pobierania kursu: ' + e.message;
+  }
+}
+
+async function pobierzKursNBP(dateStr) {
+  // Pobierz kurs z dnia poprzedniego
+  const date = new Date(dateStr);
+  date.setDate(date.getDate() - 1);
+  // Cofaj az znajdziesz dzien roboczy (max 5 dni wstecz)
+  for (let i = 0; i < 5; i++) {
+    const d = date.toISOString().split('T')[0];
+    try {
+      const resp = await fetch('https://api.nbp.pl/api/exchangerates/rates/A/EUR/' + d + '/?format=json');
+      if (resp.ok) {
+        const data = await resp.json();
+        return data.rates[0].mid;
+      }
+    } catch(e) {}
+    date.setDate(date.getDate() - 1);
+  }
+  return null;
+}
+
+async function handleSubmit(e) {
+  e.preventDefault();
+  const t = T[lang];
+
+  if (!selectedFile) {
+    showStatus('error', t.errorFile);
+    return;
+  }
+  if (selectedFile.size > 10 * 1024 * 1024) {
+    showStatus('error', t.errorSize);
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  const submitText = document.getElementById('submitText');
+  btn.disabled = true;
+  submitText.textContent = t.sending;
+  showStatus('', '');
+
+  document.getElementById('progressWrap').style.display = 'block';
+  animateProgress();
+
+  // Konwertuj plik na base64
+  const base64 = await toBase64(selectedFile);
+
+  // Jesli EUR - oblicz PLN
+  let amountPLN = parseFloat(document.getElementById('amount').value);
+  let amountOrig = amountPLN;
+  let currency = 'PLN';
+  let kursNBP = null;
+
+  if (currentLangIsEur) {
+    currency = 'EUR';
+    amountOrig = amountPLN;
+    const date = document.getElementById('invoiceDate').value;
+    kursNBP = await pobierzKursNBP(date);
+    if (kursNBP) amountPLN = Math.round(amountOrig * kursNBP);
+  }
+
+  const payload = {
+    orderId:    document.getElementById('orderId').value.trim(),
+    invoiceNr:  document.getElementById('invoiceNr').value.trim(),
+    company:    document.getElementById('company').value.trim(),
+    currency:   currency,
+    amountOrig: amountOrig,
+    kursNBP:    kursNBP,
+    invoiceDate:document.getElementById('invoiceDate').value,
+    amount:     amountPLN,
+    fileName:   selectedFile.name,
+    fileBase64: base64,
+  };
+
+  try {
+    const resp = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    const data = await resp.json();
+    if (data.success) {
+      showStatus('success', '<strong>' + t.successTitle + '</strong><br>' + t.successDesc);
+      document.getElementById('invoiceForm').reset();
+      selectedFile = null;
+      document.getElementById('fileName').style.display = 'none';
+    } else {
+      showStatus('error', t.errorTitle + ': ' + (data.error || 'Nieznany błąd'));
+    }
+  } catch(err) {
+    showStatus('error', t.errorTitle + ': ' + err.message);
+  }
+
+  btn.disabled = false;
+  submitText.textContent = t.submitText;
+  document.getElementById('progressWrap').style.display = 'none';
+  document.getElementById('progressBar').style.width = '0%';
+}
+
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function showStatus(type, msg) {
+  const box = document.getElementById('statusBox');
+  box.className = 'status' + (type ? ' ' + type : '');
+  box.innerHTML = msg;
+  box.style.display = msg ? 'block' : 'none';
+}
+
+let progressInterval;
+function animateProgress() {
+  let w = 0;
+  const bar = document.getElementById('progressBar');
+  clearInterval(progressInterval);
+  progressInterval = setInterval(() => {
+    w = Math.min(w + Math.random() * 8, 90);
+    bar.style.width = w + '%';
+  }, 200);
+}
+</script>
+</body>
+</html>
